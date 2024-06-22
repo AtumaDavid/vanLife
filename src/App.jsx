@@ -15,6 +15,8 @@ import HostVanPhotos from "./pages/host/HostVanPhotos";
 import Layout from "./components/Layout";
 import HostLayout from "./components/HostLayout";
 import "./server";
+import NotFound from "./pages/NotFound";
+import Login from "./Login";
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
           {/* vans */}
           <Route path="vans" element={<Vans />} />
           <Route path="vans/:id" element={<VanDetail />} />
+          <Route path="login" element={<Login />} />
           {/* host */}
           {/* nested route here */}
           <Route path="host" element={<HostLayout />}>
@@ -40,6 +43,7 @@ function App() {
               <Route path="photos" element={<HostVanPhotos />} />
             </Route>
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>
