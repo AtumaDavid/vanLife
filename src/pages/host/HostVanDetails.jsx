@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useParams } from "react-router-dom";
+import { getHostVans } from "../../api";
 
 export default function HostVanDetails() {
-  const { id } = useParams();
   const [currentVan, setCurrentVan] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { id } = useParams();
 
   const activeStyles = {
     fontWeight: "bold",
@@ -12,13 +15,27 @@ export default function HostVanDetails() {
   };
 
   useEffect(() => {
-    fetch(`/api/host/vans/${id}`)
-      .then((res) => res.json())
-      .then((data) => setCurrentVan(data.vans));
-  }, []);
+    async function loadVans() {
+      setLoading(true);
+      try {
+        const data = await getHostVans(id);
+        setCurrentVan(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  if (!currentVan) {
+    loadVans();
+  }, [id]);
+
+  if (loading) {
     return <h1>Loading...</h1>;
+  }
+
+  if (error) {
+    return <h1>There was an error: {error.message}</h1>;
   }
 
   return (
@@ -26,41 +43,43 @@ export default function HostVanDetails() {
       <Link to=".." relative="path" className="back-button">
         &larr; <span>Back to all vans</span>
       </Link>
-
-      <div className="host-van-detail-layout-container">
-        <div className="host-van-detail">
-          <img src={currentVan.imageUrl} />
-          <div className="host-van-detail-info-text">
-            <i className={`van-type van-type-${currentVan.type}`}>
-              {currentVan.type}
-            </i>
-            <h3>{currentVan.name}</h3>
-            <h4>${currentVan.price}/day</h4>
+      {currentVan && (
+        <div className="host-van-detail-layout-container">
+          <div className="host-van-detail">
+            <img src={currentVan.imageUrl} />
+            <div className="host-van-detail-info-text">
+              <i className={`van-type van-type-${currentVan.type}`}>
+                {currentVan.type}
+              </i>
+              <h3>{currentVan.name}</h3>
+              <h4>${currentVan.price}/day</h4>
+            </div>
           </div>
+
+          <nav className="host-van-detail-nav">
+            <NavLink
+              to="."
+              end
+              style={({ isActive }) => (isActive ? activeStyles : null)}
+            >
+              Details
+            </NavLink>
+            <NavLink
+              to="pricing"
+              style={({ isActive }) => (isActive ? activeStyles : null)}
+            >
+              Pricing
+            </NavLink>
+            <NavLink
+              to="photos"
+              style={({ isActive }) => (isActive ? activeStyles : null)}
+            >
+              Photos
+            </NavLink>
+          </nav>
+          <Outlet context={{ currentVan }} />
         </div>
-        <nav className="host-van-detail-nav">
-          <NavLink
-            to="."
-            end
-            style={({ isActive }) => (isActive ? activeStyles : null)}
-          >
-            Details
-          </NavLink>
-          <NavLink
-            to="pricing"
-            style={({ isActive }) => (isActive ? activeStyles : null)}
-          >
-            Pricing
-          </NavLink>
-          <NavLink
-            to="photos"
-            style={({ isActive }) => (isActive ? activeStyles : null)}
-          >
-            Photos
-          </NavLink>
-        </nav>
-        <Outlet context={{ currentVan }} />
-      </div>
+      )}
     </section>
   );
 }

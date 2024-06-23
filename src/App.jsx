@@ -17,6 +17,7 @@ import HostLayout from "./components/HostLayout";
 import "./server";
 import NotFound from "./pages/NotFound";
 import Login from "./Login";
+import AuthRequired from "./components/AuthRequired";
 
 function App() {
   return (
@@ -29,20 +30,24 @@ function App() {
           {/* vans */}
           <Route path="vans" element={<Vans />} />
           <Route path="vans/:id" element={<VanDetail />} />
+          {/* login */}
           <Route path="login" element={<Login />} />
           {/* host */}
           {/* nested route here */}
-          <Route path="host" element={<HostLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="income" element={<Income />} />
-            <Route path="reviews" element={<Reviews />} />
-            <Route path="vans" element={<HostVans />} />
-            <Route path="vans/:id" element={<HostVanDetails />}>
-              <Route index element={<HostVanInfo />} />
-              <Route path="pricing" element={<HostVanPricing />} />
-              <Route path="photos" element={<HostVanPhotos />} />
+          <Route element={<AuthRequired />}>
+            <Route path="host" element={<HostLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="income" element={<Income />} />
+              <Route path="reviews" element={<Reviews />} />
+              <Route path="vans" element={<HostVans />} />
+              <Route path="vans/:id" element={<HostVanDetails />}>
+                <Route index element={<HostVanInfo />} />
+                <Route path="pricing" element={<HostVanPricing />} />
+                <Route path="photos" element={<HostVanPhotos />} />
+              </Route>
             </Route>
           </Route>
+
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
